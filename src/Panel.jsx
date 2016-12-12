@@ -17,6 +17,12 @@ function generateOptions(length, disabledOptions, hideDisabledOptions) {
   return arr;
 }
 
+function militaryToStandard(time) {
+  const number =  time % 12 ? time % 12 : 12;
+  const suffix = time < 12 ? 'am' : 'pm';
+  return `${number} ${suffix}`;
+}
+
 const Panel = React.createClass({
   propTypes: {
     clearText: PropTypes.string,
@@ -38,6 +44,10 @@ const Panel = React.createClass({
     showSecond: PropTypes.bool,
     onClear: PropTypes.func,
     addon: PropTypes.func,
+    military: PropTypes.bool,
+    hoursDisplayFunc: PropTypes.func,
+    minutesDisplayFunc: PropTypes.func,
+    secondsDisplayFunc: PropTypes.func,
   },
 
   getDefaultProps() {
@@ -90,7 +100,7 @@ const Panel = React.createClass({
     const {
       prefixCls, className, placeholder, disabledHours, disabledMinutes,
       disabledSeconds, hideDisabledOptions, allowEmpty, showHour, showMinute, showSecond,
-      format, defaultOpenValue, clearText, onEsc, addon,
+      format, defaultOpenValue, clearText, onEsc, addon, military, hoursDisplayFunc, minutesDisplayFunc, secondsDisplayFunc,
     } = this.props;
     const {
       value, currentSelectPanel,
@@ -140,6 +150,10 @@ const Panel = React.createClass({
           disabledMinutes={disabledMinutes}
           disabledSeconds={disabledSeconds}
           onCurrentSelectPanelChange={this.onCurrentSelectPanelChange}
+          military={military}
+          hoursDisplayFunc={hoursDisplayFunc}
+          minutesDisplayFunc={minutesDisplayFunc}
+          secondsDisplayFunc={secondsDisplayFunc}
         />
         {addon(this)}
       </div>

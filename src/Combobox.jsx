@@ -1,22 +1,32 @@
 import React, { PropTypes } from 'react';
 import Select from './Select';
 
-const formatOption = (option, disabledOptions) => {
-  let value = `${option}`;
-  if (option < 10) {
-    value = `0${option}`;
-  }
-
+const formatOption = (option, disabledOptions, displayFunc) => {
   let disabled = false;
   if (disabledOptions && disabledOptions.indexOf(option) >= 0) {
     disabled = true;
   }
 
   return {
-    value,
+    value: option,
     disabled,
+    display: displayFunc(option),
   };
 };
+
+const militaryToStandard = (hour) => {
+  const number =  hour % 12 ? hour % 12 : 12;
+  const suffix = hour < 12 ? 'am' : 'pm';
+  return `${number} ${suffix}`;
+}
+
+const militaryHourDisplay = (value) => {
+  value < 10 ? `0${value}` : `${value}`;
+}
+
+const identity = (value) => {
+  return value
+}
 
 const Combobox = React.createClass({
   propTypes: {
@@ -35,6 +45,10 @@ const Combobox = React.createClass({
     disabledMinutes: PropTypes.func,
     disabledSeconds: PropTypes.func,
     onCurrentSelectPanelChange: PropTypes.func,
+    military: PropTypes.bool,
+    hoursDisplayFunc: PropTypes.func,
+    minutesDisplayFunc: PropTypes.func,
+    secondsDisplayFunc: PropTypes.func,
   },
 
   onItemChange(type, itemValue) {
@@ -55,16 +69,17 @@ const Combobox = React.createClass({
   },
 
   getHourSelect(hour) {
-    const { prefixCls, hourOptions, disabledHours, showHour } = this.props;
+    const { prefixCls, hourOptions, disabledHours, showHour, military, hoursDisplayFunc } = this.props;
     if (!showHour) {
       return null;
     }
     const disabledOptions = disabledHours();
+    const displayFunc = hoursDisplayFunc || ( !military ? militaryToStandard : identity )
 
     return (
       <Select
         prefixCls={prefixCls}
-        options={hourOptions.map(option => formatOption(option, disabledOptions))}
+        options={hourOptions.map(option => formatOption(option, disabledOptions, displayFunc))}
         selectedIndex={hourOptions.indexOf(hour)}
         type="hour"
         onSelect={this.onItemChange}
@@ -74,17 +89,18 @@ const Combobox = React.createClass({
   },
 
   getMinuteSelect(minute) {
-    const { prefixCls, minuteOptions, disabledMinutes, defaultOpenValue, showMinute } = this.props;
+    const { prefixCls, minuteOptions, disabledMinutes, defaultOpenValue, showMinute, minutesDisplayFunc } = this.props;
     if (!showMinute) {
       return null;
     }
     const value = this.props.value || defaultOpenValue;
     const disabledOptions = disabledMinutes(value.hour());
+    const displayFunc = minutesDisplayFunc || identity;
 
     return (
       <Select
         prefixCls={prefixCls}
-        options={minuteOptions.map(option => formatOption(option, disabledOptions))}
+        options={minuteOptions.map(option => formatOption(option, disabledOptions, displayFunc))}
         selectedIndex={minuteOptions.indexOf(minute)}
         type="minute"
         onSelect={this.onItemChange}
@@ -94,17 +110,18 @@ const Combobox = React.createClass({
   },
 
   getSecondSelect(second) {
-    const { prefixCls, secondOptions, disabledSeconds, showSecond, defaultOpenValue } = this.props;
+    const { prefixCls, secondOptions, disabledSeconds, showSecond, defaultOpenValue, secondsDisplayFunc } = this.props;
     if (!showSecond) {
       return null;
     }
     const value = this.props.value || defaultOpenValue;
     const disabledOptions = disabledSeconds(value.hour(), value.minute());
+    const displayFunc = secondsDisplayFunc || identity;
 
     return (
       <Select
         prefixCls={prefixCls}
-        options={secondOptions.map(option => formatOption(option, disabledOptions))}
+        options={secondOptions.map(option => formatOption(option, disabledOptions, displayFunc))}
         selectedIndex={secondOptions.indexOf(second)}
         type="second"
         onSelect={this.onItemChange}
