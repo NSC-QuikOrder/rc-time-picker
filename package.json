@@ -42,7 +42,7 @@
     "chrome-test": "rc-tools run chrome-test",
     "coverage": "rc-tools run coverage",
     "build-lib": "babel src --out-dir lib --presets=airbnb,es2015,stage-0",
-    "build-css": "lessc ./assets/index.less ./assets/index.css",
+    "build-css": "lessc ./assets/index.less ./assets/index.css"
   },
   "devDependencies": {
     "async": "~0.9.0",
